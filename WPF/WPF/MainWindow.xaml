@@ -1,0 +1,72 @@
+﻿<Window x:Class="WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF"
+        mc:Ignorable="d"
+        Title="Kalkulator i Rejestr Wynagrodzeń" Height="620" Width="840" ResizeMode="CanMinimize">
+    <Grid Background="#F4F6F7">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Background="#2C3E50" Grid.Row="0">
+            <TextBlock Text="Kalkulator Wynagrodzeń - Autor: 00000000000" 
+                       Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                       FontWeight="SemiBold" FontSize="13"/>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="340"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Header="Dane Wejściowe" Grid.Column="0" Margin="0,0,10,0" Padding="10" FontWeight="Bold">
+                <StackPanel Margin="0,5,0,0">
+                    <TextBlock Text="Wynagrodzenie brutto w PLN" Margin="0,0,0,5" FontWeight="Normal"/>
+                    <TextBox x:Name="txtGross" Text="5000,00" Height="28" VerticalContentAlignment="Center" Margin="0,0,0,15" FontWeight="Normal"/>
+
+                    <TextBlock Text="Rodzaj Umowy" Margin="0,0,0,5" FontWeight="Normal"/>
+                    <StackPanel Margin="10,0,0,15">
+                        <RadioButton x:Name="rbEmploymentContract" Content="Umowa o pracę" IsChecked="True" Margin="0,0,0,8" FontWeight="Normal"/>
+                        <RadioButton x:Name="rbMandateContract" Content="Umowa zlecenie" FontWeight="Normal"/>
+                    </StackPanel>
+
+                    <CheckBox x:Name="chkYouthRelief" Content="Ulga dla młodych &lt; 26 lat" Margin="0,5,0,25" FontWeight="Normal"/>
+
+                    <Button x:Name="btnCalculateAndSave" Content="OBLICZ I ZAPISZ" Background="#0056B3" Foreground="White" 
+                            Height="45" FontWeight="Bold" FontSize="14" Click="BtnCalculateAndSave_Click" Cursor="Hand"/>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="Wyniki i Historia" Grid.Column="1" Margin="10,0,0,0" Padding="10" FontWeight="Bold">
+                <StackPanel>
+                    <TextBlock x:Name="txtNetResultMain" Text="Wynagrodzenie netto: 3500,00 PLN" 
+                               Foreground="#27AE60" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                    <GroupBox Header="Szczegóły Składek i Podatków" Margin="0,0,0,15" Padding="8" FontWeight="Normal">
+                        <StackPanel>
+                            <TextBlock x:Name="txtZusDetails" Text="Składki ZUS (społeczne): 685,50 PLN" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="txtHealthDetails" Text="Składka zdrowotna: 450,00 PLN" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="txtPitDetails" Text="Zaliczka na podatek PIT: 364,50 PLN"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <TextBlock Text="Rejestr Wynagrodzeń" Margin="0,0,0,5" FontWeight="Normal"/>
+                    <DataGrid x:Name="dgHistory" AutoGenerateColumns="False" Height="200" IsReadOnly="True" FontWeight="Normal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Data" Binding="{Binding Date}" Width="90"/>
+                            <DataGridTextColumn Header="Kwota Brutto" Binding="{Binding Gross}" Width="95"/>
+                            <DataGridTextColumn Header="Umowa" Binding="{Binding Contract}" Width="90"/>
+                            <DataGridTextColumn Header="Netto" Binding="{Binding Net}" Width="90"/>
+                            <DataGridTextColumn Header="Ulga" Binding="{Binding Relief}" Width="55"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</Window>
