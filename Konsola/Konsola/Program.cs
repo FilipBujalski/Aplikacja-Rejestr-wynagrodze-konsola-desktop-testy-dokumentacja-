@@ -1,67 +1,82 @@
 ﻿using System;
 
-public class SalaryCalculator
+public class KalkulatorWynagrodzen
 {
-    private double grossAmount;
-    private string employmentType;
-    private bool isYouthRelief;
+    private double kwotaBrutto;
+    private string rodzajUmowy;
+    private bool czyUlgaDlaMlodych;
 
-    public SalaryCalculator(double grossAmount, string employmentType, bool isYouthRelief)
+    public KalkulatorWynagrodzen(double kwotaBrutto, string rodzajUmowy, bool czyUlgaDlaMlodych)
     {
-        SetGrossAmount(grossAmount);
-        this.employmentType = employmentType;
-        this.isYouthRelief = isYouthRelief;
+        UstawKwoteBrutto(kwotaBrutto);
+        UstawRodzajUmowy(rodzajUmowy);
+        this.czyUlgaDlaMlodych = czyUlgaDlaMlodych;
     }
 
     // Walidacja danych: sprawdzenie czy kwota brutto jest większa od 0
-    public static bool ValidateGrossAmount(double amount)
+    public static bool WalidujKwoteBrutto(double kwota)
     {
-        return amount > 0;
+        return kwota > 0;
     }
 
-    public void SetGrossAmount(double amount)
+    public void UstawKwoteBrutto(double kwota)
     {
-        if (ValidateGrossAmount(amount))
+        if (WalidujKwoteBrutto(kwota))
         {
-            this.grossAmount = amount;
+            this.kwotaBrutto = kwota;
         }
         else
         {
-            throw new ArgumentException("Kwota brutto musi być większa od 0.");
+            throw new ArgumentException("Kwota brutto musi być większa od 0.", nameof(kwota));
         }
     }
 
-    public double GetGrossAmount() => grossAmount;
+    public double PobierzKwoteBrutto() => kwotaBrutto;
+
+    public void UstawRodzajUmowy(string rodzaj)
+    {
+        if (string.IsNullOrWhiteSpace(rodzaj))
+        {
+            throw new ArgumentException("Rodzaj umowy nie może być pusty.", nameof(rodzaj));
+        }
+
+        this.rodzajUmowy = rodzaj.Trim();
+    }
+
+    public string PobierzRodzajUmowy() => rodzajUmowy;
+
+    public bool CzyUlgaDlaMlodych() => czyUlgaDlaMlodych;
 
     // Obliczanie składek ZUS społecznych (13,71% brutto)
-    public double CalculateSocialZus()
+    public double ObliczZusSpoleczny()
     {
-        return Math.Round(grossAmount * 0.1371, 2);
+        return Math.Round(kwotaBrutto * 0.1371, 2);
     }
 
     // Obliczanie składki zdrowotnej (9,00% podstawy wymiaru: brutto - ZUS społeczne)
-    public double CalculateHealthZus()
+    public double ObliczSkladkeZdrowotna()
     {
-        double baseForHealth = grossAmount - CalculateSocialZus();
-        return Math.Round(baseForHealth * 0.09, 2);
+        double podstawaZdrowotna = kwotaBrutto - ObliczZusSpoleczny();
+        return Math.Round(podstawaZdrowotna * 0.09, 2);
     }
 
-    // Obliczanie zaliczki na podatek PIT
-    public double CalculatePitTax()
+    // Obliczanie zaliczki na podatek PIT (0,00 PLN przy włączonej uldze dla młodych)
+    public double ObliczZaliczkePit()
     {
-        if (isYouthRelief)
+        if (czyUlgaDlaMlodych)
         {
             return 0.00;
         }
-        double baseForPit = grossAmount - CalculateSocialZus();
-        return Math.Round(baseForPit * 0.12, 2);
+
+        double podstawaPit = kwotaBrutto - ObliczZusSpoleczny();
+        return Math.Round(podstawaPit * 0.12, 2);
     }
 
     // Obliczanie wynagrodzenia netto
-    public double CalculateNetSalary()
+    public double ObliczWynagrodzenieNetto()
     {
-        double net = grossAmount - CalculateSocialZus() - CalculateHealthZus() - CalculatePitTax();
-        return Math.Round(net, 2);
+        double netto = kwotaBrutto - ObliczZusSpoleczny() - ObliczSkladkeZdrowotna() - ObliczZaliczkePit();
+        return Math.Round(netto, 2);
     }
 }
 
@@ -72,20 +87,20 @@ class Program
         Console.WriteLine("=== PROGRAM GŁÓWNY - KALKULATOR WYNAGRODZEŃ ===\n");
 
         // Wariant 1: Umowa o pracę bez ulgi dla młodych
-        SalaryCalculator calc1 = new SalaryCalculator(5000.0, "Umowa o pracę", false);
-        Console.WriteLine($"Wariant 1: {calc1.GetGrossAmount()} PLN (Umowa o pracę, bez ulgi)");
-        Console.WriteLine($"  - Składki ZUS: {calc1.CalculateSocialZus()} PLN");
-        Console.WriteLine($"  - Składka zdrowotna: {calc1.CalculateHealthZus()} PLN");
-        Console.WriteLine($"  - Podatek PIT: {calc1.CalculatePitTax()} PLN");
-        Console.WriteLine($"  - Wynagrodzenie Netto: {calc1.CalculateNetSalary()} PLN\n");
+        KalkulatorWynagrodzen kalk1 = new KalkulatorWynagrodzen(5000.0, "Umowa o pracę", false);
+        Console.WriteLine($"Wariant 1: {kalk1.PobierzKwoteBrutto()} PLN ({kalk1.PobierzRodzajUmowy()}, bez ulgi)");
+        Console.WriteLine($"  - Składki ZUS: {kalk1.ObliczZusSpoleczny()} PLN");
+        Console.WriteLine($"  - Składka zdrowotna: {kalk1.ObliczSkladkeZdrowotna()} PLN");
+        Console.WriteLine($"  - Podatek PIT: {kalk1.ObliczZaliczkePit()} PLN");
+        Console.WriteLine($"  - Wynagrodzenie Netto: {kalk1.ObliczWynagrodzenieNetto()} PLN\n");
 
         // Wariant 2: Umowa zlecenie z ulgą dla młodych (<26 lat)
-        SalaryCalculator calc2 = new SalaryCalculator(5000.0, "Umowa zlecenie", true);
-        Console.WriteLine($"Wariant 2: {calc2.GetGrossAmount()} PLN (Umowa zlecenie, z ulgą dla młodych)");
-        Console.WriteLine($"  - Składki ZUS: {calc2.CalculateSocialZus()} PLN");
-        Console.WriteLine($"  - Składka zdrowotna: {calc2.CalculateHealthZus()} PLN");
-        Console.WriteLine($"  - Podatek PIT: {calc2.CalculatePitTax()} PLN (Ulga dla młodych)");
-        Console.WriteLine($"  - Wynagrodzenie Netto: {calc2.CalculateNetSalary()} PLN");
+        KalkulatorWynagrodzen kalk2 = new KalkulatorWynagrodzen(5000.0, "Umowa zlecenie", true);
+        Console.WriteLine($"Wariant 2: {kalk2.PobierzKwoteBrutto()} PLN ({kalk2.PobierzRodzajUmowy()}, z ulgą dla młodych)");
+        Console.WriteLine($"  - Składki ZUS: {kalk2.ObliczZusSpoleczny()} PLN");
+        Console.WriteLine($"  - Składka zdrowotna: {kalk2.ObliczSkladkeZdrowotna()} PLN");
+        Console.WriteLine($"  - Podatek PIT: {kalk2.ObliczZaliczkePit()} PLN (Ulga dla młodych)");
+        Console.WriteLine($"  - Wynagrodzenie Netto: {kalk2.ObliczWynagrodzenieNetto()} PLN");
 
         Console.WriteLine("\nNaciśnij dowolny klawisz, aby zakończyć...");
         Console.ReadKey();
